@@ -1,36 +1,112 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Math Worksheet Generator
 
-## Getting Started
+A small Next.js app that generates printable A4 **addition/subtraction worksheets** for a first grader.
 
-First, run the development server:
+- Choose number of problems and largest number.
+- Choose operation: addition, subtraction, or mixed.
+- Optionally ensure that **results never exceed the largest number**.
+- Settings are **saved in localStorage** with a reset button.
+- Layout is optimized for **printing on A4** (controls are hidden in print view).
+
+---
+
+## Getting started (local development)
+
+Requirements:
+- Node.js 20+
+- pnpm
+
+Install dependencies and run the dev server:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+pnpm install
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Then open http://localhost:3000 in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Run lint and tests:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+pnpm lint
+pnpm test
+```
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## Production build
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+pnpm install
+pnpm build
+pnpm start
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+By default the app runs on port **3000**.
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Docker
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+A multi-stage Dockerfile is provided.
+
+Build the image:
+
+```bash
+docker build -t ghcr.io/<OWNER>/math-worksheet:latest .
+```
+
+Run the container:
+
+```bash
+docker run --rm -p 3000:3000 ghcr.io/<OWNER>/math-worksheet:latest
+```
+
+Then open http://localhost:3000.
+
+---
+
+## GitHub Actions (build & publish to GHCR)
+
+GitHub Actions workflow lives at:
+
+- `.github/workflows/docker-ghcr.yml`
+
+It:
+- Builds the Docker image using the `Dockerfile` in this repo.
+- Pushes it to **GitHub Container Registry (GHCR)** as:
+  - `ghcr.io/<OWNER>/math-worksheet:<branch-or-tag>`.
+
+The workflow uses the built-in `GITHUB_TOKEN` and does not need extra secrets in most setups.
+
+---
+
+## Kubernetes deployment
+
+Manifests are under `k8s/` and assume a **`nextjs` namespace**:
+
+- `k8s/namespace.yaml` – Namespace definition (`nextjs`).
+- `k8s/deployment.yaml` – Next.js Deployment.
+- `k8s/service.yaml` – ClusterIP Service on port 80.
+- `k8s/ingress.yaml` – nginx Ingress with cert-manager TLS.
+
+Basic deployment flow:
+
+1. Make sure you have a Docker image in GHCR, e.g.:
+   - `ghcr.io/<OWNER>/math-worksheet:latest`
+   and update `k8s/deployment.yaml` `image:` field accordingly.
+2. Install **nginx ingress controller** and **cert-manager** in your cluster.
+3. Create/verify a `ClusterIssuer` for Let’s Encrypt (e.g. `letsencrypt-prod`).
+4. Set your real domain in `k8s/ingress.yaml` (replace `math-worksheet.example.com`).
+
+Apply:
+
+```bash
+kubectl apply -f k8s/namespace.yaml
+kubectl apply -f k8s/deployment.yaml
+kubectl apply -f k8s/service.yaml
+kubectl apply -f k8s/ingress.yaml
+```
+
+Once DNS for your domain points to the nginx ingress controller, cert-manager will
+obtain a TLS certificate and your worksheet app will be available over HTTPS.
