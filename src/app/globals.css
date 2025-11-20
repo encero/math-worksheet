@@ -24,3 +24,38 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+@page {
+  size: A4;
+  margin: 1.5cm;
+}
+
+@media screen {
+  .print-page {
+    margin: 1.5rem auto;
+    max-width: 900px;
+    box-shadow: 0 0 0 1px #e5e7eb;
+  }
+}
+
+@media print {
+  body {
+    margin: 0;
+    background: #ffffff;
+    color: #000000;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .print-page {
+    box-shadow: none;
+    max-width: 100%;
+  }
+
+  .problem-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.7cm 1cm;
+  }
+}

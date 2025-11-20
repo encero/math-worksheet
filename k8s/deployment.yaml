@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: math-worksheet
+  namespace: nextjs
+  labels:
+    app: math-worksheet
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: math-worksheet
+  template:
+    metadata:
+      labels:
+        app: math-worksheet
+    spec:
+      containers:
+        - name: math-worksheet
+          image: your-registry/math-worksheet:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+              name: http
+          env:
+            - name: NODE_ENV
+              value: "production"
+            - name: PORT
+              value: "3000"
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+

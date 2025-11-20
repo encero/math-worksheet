@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: math-worksheet
+  namespace: nextjs
+  labels:
+    app: math-worksheet
+spec:
+  type: ClusterIP
+  selector:
+    app: math-worksheet
+  ports:
+    - name: http
+      port: 80
+      targetPort: 3000
+

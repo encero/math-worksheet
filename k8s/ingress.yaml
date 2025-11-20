@@ -1,0 +1,28 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: math-worksheet
+  namespace: nextjs
+  labels:
+    app: math-worksheet
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-prod # change if your ClusterIssuer has a different name
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - math-worksheet.example.com # change to your real domain
+      secretName: math-worksheet-tls
+  rules:
+    - host: math-worksheet.example.com # change to your real domain
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: math-worksheet
+                port:
+                  number: 80
+
