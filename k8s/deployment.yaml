@@ -6,7 +6,7 @@ metadata:
   labels:
     app: math-worksheet
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: math-worksheet
@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: math-worksheet
-          image: your-registry/math-worksheet:latest
+          image: ghcr.io/encero/math-worksheet:sha-8c77b07
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3000

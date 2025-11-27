@@ -6,10 +6,9 @@ metadata:
   labels:
     app: math-worksheet
   annotations:
-    kubernetes.io/ingress.class: nginx
     cert-manager.io/cluster-issuer: letsencrypt-prod # change if your ClusterIssuer has a different name
 spec:
-  ingressClassName: nginx
+  ingressClassName: traefik
   tls:
     - hosts:
         - math-worksheet.example.com # change to your real domain
